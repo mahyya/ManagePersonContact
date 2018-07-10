@@ -1,0 +1,162 @@
+﻿@model ManagePersonDetails.Models.Person
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style type="text/css">
+        .headerclas {
+            background: #fff;
+            width: 100%;
+            z-index: 10010;
+        }
+        .heading {margin-bottom: 10px !important;
+    background: rgba(0, 0, 0, 0) linear-gradient(to right, #ba1f25 -6%, #ffffff 1%, #f6f6f6 74%, #ededed 100%) repeat scroll 0 0;
+    border-bottom: 1px dotted #f0f0f0;
+    color: #ba1f25;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 7px 5px;
+    text-indent: 10px;
+        }
+    </style>
+</head>
+<body>   
+
+    <div class="col-md-12">
+
+        <br />
+        <div class="col-md-12 heading">
+            <div>Person Contact Details</div>
+        </div>
+
+        <div class="clearfix"></div>
+        <br />
+        <div class="col-md-12 text-right">
+            <a id="btnAdd" href="~/Home/Add" class="btn btn-primary"> Add Person</a>
+        </div>
+        
+        <div class="clearfix"></div>
+
+        <br />
+
+        <div class="col-md-12">
+
+@if (Model.ListPerson != null && Model.ListPerson.Count>0)
+{
+
+            <table  class="table table-condensed">
+                <thead>
+                    <th>Sr #</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Gender</th>
+                    <th>Email Address</th>
+                    <th>Phone Number</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </thead>
+                <tbody id="tbodyPerson">
+                    @{
+                        var counter = 1;
+                    }
+                        @foreach (ManagePersonDetails.Models.PersonReport person in Model.ListPerson)
+                        {
+                            <tr>
+                                <td>@counter</td>
+                                <td>@person.FirstName</td>
+                                <td>@person.LastName</td>
+                                @if (person.Gender == "M")
+                                {
+                                    <td> Male </td>
+                                }
+                                else
+                                {
+                                    <td> Female </td>
+                                }
+                                <td>@person.EmailAddress</td>
+                                <td>@person.PhoneNumber</td>
+                                <td>
+                                    @if (person.IsActive)
+                                    {
+                                        <span id="spanStatus@(person.PersonID)" style="color:green"> Activated</span>
+                                    }
+                                    else
+                                    {
+                                        <span id="spanStatus@(person.PersonID)" style="color:#ba1f25"> Deactivated</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a class="Edit" href="javascript:;" onclick="return editPerson(@person.PersonID)">Edit</a> |
+
+                                    @if (person.IsActive)
+                                    {
+                                        <a class="status" href="javascript:;" id="linkStatus@(person.PersonID)" onclick="return updatePersonStatus(@person.PersonID,false)">Deactivate</a>
+                                    }
+                                    else
+                                    {
+                                        <a class="status" href="javascript:;" id="linkStatus@(person.PersonID)" onclick="return updatePersonStatus(@person.PersonID,true)">Activate</a>
+                                    }
+
+                                </td>
+                            </tr>
+                            counter++;
+                        }
+               </tbody>
+
+            </table>
+                        }
+                        else
+                        {
+                            <div class="col-md-12" style="color:#ba1f25;">
+                                There are no records found.
+                            </div>
+                        }
+
+        </div>
+
+    </div>
+
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.cdnjs.com/ajax/libs/json2/20110223/json2.js"></script>
+    <script type="text/javascript">
+
+        function editPerson(personID) {      
+                var target = '@Url.Action("Edit", "Home")';
+                window.location = target + "?pid=" + personID;
+        }
+
+        function updatePersonStatus(personID, status) {
+            var url = "@Url.Action("UpdatePersonStatus", "Home")";
+            var model = { PersonID: personID, IsActive: status };
+            $.post(url, model ,function(data){
+                if (status) {
+                    $("#spanStatus" + personID).html("Activated").css("color","green");
+                    $("#linkStatus" + personID).html("Deactivate").attr("onclick", "return updatePersonStatus(" + personID + ",false)");
+                }
+                else {
+                    $("#spanStatus" + personID).html("Deactivated").css("color", "#ba1f25");
+                    $("#linkStatus" + personID).html("Activate").attr("onclick", "return updatePersonStatus(" + personID + ",true)");
+                }
+            });
+        }
+
+
+
+    </script>
+</body>
+</html>
